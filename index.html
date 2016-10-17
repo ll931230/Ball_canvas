@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>鼠标炫彩小球</title>
+	<style type="text/css">
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		canvas{
+			border: 1px solid #000;
+			display: block;
+		}
+	</style>
+</head>
+<body>
+	<canvas width="1000" height="600" id="mycanvas">
+		哈哈哈哈，你的浏览器弱爆了，不支持canvas，赶紧升级吧！
+	</canvas>
+
+	<script type="text/javascript" src="js/underscore.js"></script>
+	<script type="text/javascript">
+		//得到画布标签
+		var canvas = document.getElementById("mycanvas");
+		//得到画布上下文，上下文有两个：2d上下文、3d上下文
+		//今后所有的绘制，都是这个ctx的属性或者方法，和canvas无关了。
+		var ctx = canvas.getContext("2d");
+		//让画布的尺寸100%
+		canvas.width = document.documentElement.clientWidth - 30;
+		canvas.height = document.documentElement.clientHeight;
+
+		var textArr = ["html","css","canvas","jquery","设计模式","node.js","angular","backbone","vue","angular","react","sess","gulp","fis","MongoDB","Express","SQLserver","HTML5","CSS3","zepto","设计模式","node.js","angular","html","css","canvas","jquery","设计模式","node.js","angular","backbone","vue","angular","react","sess","gulp","fis","MongoDB","Express","SQLserver"];
+		
+		//小球类
+		function Ball(){
+			this.x = _.random(0,canvas.width);
+			this.y = _.random(0,canvas.height);
+			this.r = 10;
+			this.color = "gray";
+
+			//自己的增量
+			this.dx = _.random(-4,4);
+			this.dy = _.random(-4,4);
+
+			//把自己放入数组
+			ballArr.push(this);
+			//自己在数组中的序号
+			this.index = ballArr.length - 1;
+			//自己的文字
+			this.text = textArr[this.index];
+		}
+		Ball.prototype.update = function(){
+			this.x += this.dx;
+			this.y += this.dy;
+			//当自己出屏幕了，反弹
+			if(this.x < this.r || this.x > canvas.width - this.r){
+				this.dx = -this.dx;
+			}
+			if(this.y < this.r || this.y > canvas.height - this.r){
+				this.dy = -this.dy;
+			}
+		}
+		Ball.prototype.render = function(){
+			ctx.beginPath();
+			ctx.globalAlpha = 1;
+			//画小球
+			ctx.arc(this.x , this.y , this.r , 0 , 7 , false);
+			//改变文字的样子
+			ctx.font = "20px 微软雅黑";
+			//画文字
+			ctx.fillText(this.text,this.x + 10,this.y + 6);
+
+			ctx.fillStyle = this.color;
+			ctx.fill();
+
+
+			//画线也是小球的方法，只画比自己大的球，只画离自己近的球
+			for(var i = this.index ; i < ballArr.length ; i++){
+				if(Math.abs(ballArr[i].x - this.x) < 150 && Math.abs(ballArr[i].y - this.y) < 150){
+					//画线的佛经
+					ctx.strokeStyle = "black";
+					ctx.beginPath();
+					//透明度和小球和小球之间的距离成反比
+					ctx.globalAlpha = 10 / Math.sqrt(Math.pow(ballArr[i].x - this.x , 2) + Math.pow(ballArr[i].y - this.y , 2));
+					ctx.moveTo(this.x, this.y);
+					ctx.lineTo(ballArr[i].x , ballArr[i].y);
+					ctx.closePath();
+					ctx.stroke();
+				}
+			}
+		}
+
+		//所有的小球
+		var ballArr = [];
+
+		for(var i = 0 ; i < 30 ; i++){
+			new Ball();
+		}
+
+		//定时器，三个事情，清屏，让所有小球更新，让所有小球都渲染
+		setInterval(function(){
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+			//渲染所有小球
+			_.each(ballArr,function(ball){
+				ball.update();
+				ball.render();
+			});
+		},30);
+	</script>
+</body>
+</html>		
